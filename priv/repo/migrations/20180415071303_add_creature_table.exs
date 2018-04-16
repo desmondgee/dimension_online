@@ -11,6 +11,8 @@ defmodule DimensionOnline.Repo.Migrations.AddCreatureTable do
       add :birthed_at, :integer
       add :matures_at, :integer
       add :dies_at, :integer
+      add :last_message, :string
+      add :status, :string
 
       timestamps()
     end

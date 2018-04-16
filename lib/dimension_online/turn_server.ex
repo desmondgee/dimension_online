@@ -1,57 +1,42 @@
 defmodule DimensionOnline.TurnServer do
   use GenServer
 
+  @turn_ms 2000
+
+
   def start_link do
-    GenServer.start_link(__MODULE__, %{})
+    GenServer.start_link(__MODULE__, %{}, [name: __MODULE__])
   end
 
 
   ## Callbacks
 
-  def init(state) do
-    schedule_work() # Schedule work to be performed at some point
-    {:ok, state}
+  def init(_) do
+    DimensionOnline.Repo.delete_all(DimensionOnline.Creature)
+
+    for x <- (1..20) do
+      i = Enum.random(-10..1)
+      DimensionOnline.Creature.spawn_rabbit(i)
+    end
+
+    Process.send(self(), :process_turn, [])
+
+    {:ok, %{turn: 0}}
   end
 
-  # def init(tick_ms) do
-  #   Process.start(self(), tick_ms)
-  #
-  #   {:ok, tick_ms}
-  # end
+  def handle_info(:process_turn, %{turn: turn}) do
+    start_time = Time.utc_now
+    IO.puts "Processing Turn #{turn} at #{start_time}"
 
-  # def handle_call(:pop, _from, [h | t]) do
-  #   {:reply, h, t}
-  # end
-  #
-  # def handle_cast({:push, h}, t) do
-  #   {:noreply, [h | t]}
-  # end
+    DimensionOnline.Creature.tick_all(turn)
 
-  # def handle_info({tick_ms, rabbit_server} = state) do
-  #   start_time = Time.utc_now
-  #
-  #
-  #   # for rabbit <- rabbit_server.rabbits do
-  #   #   rabbit.tick
-  #   # end
-  #
-  #   process_ms = Time.diff(Time.utc_now, start_time, :millisecond)
-  #
-  #   if process_ms < tick_ms
-  #     Process.sleep(tick_ms - process_ms)
-  #   end
-  #
-  #   schedule_work() # Reschedule once more
-  #   {:noreply, state}
-  # end
+    process_ms = Time.diff(Time.utc_now, start_time, :millisecond)
 
-  def handle_info(:work, state) do
-    # Do the work you desire here
-    schedule_work() # Reschedule once more
-    {:noreply, state}
-  end
+    sleep_ms = @turn_ms - process_ms
+    IO.puts "Next turn will be in #{sleep_ms} milliseconds."
+    Process.send_after(self(), :process_turn, sleep_ms)
 
-  defp schedule_work() do
-    Process.send_after(self(), :work, 2000) # Every 2 seconds
+    # How is the turn geting updated before the next process is run? Race condition?
+    {:noreply, %{turn: turn + 1}}
   end
 end
