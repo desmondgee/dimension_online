@@ -27,7 +27,7 @@ defmodule DimensionOnline.Creature do
   end
 
   def all_rabbits(ticker) do
-    Repo.all(from c in Creature, where: c.type == "Rabbit" and c.dies_at >= ^ticker)
+    Repo.all(from c in Creature, where: c.type == "Rabbit" and c.dies_at >= ^ticker, order_by: c.id)
   end
 
   def count_rabbits(ticker) do
@@ -108,7 +108,7 @@ defmodule DimensionOnline.Creature do
   end
 
   defp graze(creature) do
-    increment = Enum.random([0, 0, 1, 2, 3, 3, 4, 4])
+    increment = Enum.random([0, 1, 1, 2, 3, 3, 4, 4])
     if increment == 0 do
       status = get_status(creature, "was unable to find food.")
       change(creature, last_message: status)

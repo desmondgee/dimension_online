@@ -1,0 +1,11 @@
+<script> setTimeout(function(){ location.reload(); }, 2000); </script>
+<div class="jumbotron">
+  <h2>The World</h2>
+  <p> current turn: <%= current_turn() %></h2>
+  <p> number of creatures: <%= creature_count() %></h2>
+  <p> number of casualties: <%= dead_creature_count() %></h2>
+
+  <p> Grid: </p>
+  <p class="grid"> <%= print_creatures() %>
+
+</div>
