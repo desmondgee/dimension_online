@@ -30,6 +30,15 @@ defmodule DimensionOnline.Creature do
     Repo.all(from c in Creature, where: c.type == "Rabbit" and c.dies_at >= ^ticker, order_by: c.id)
   end
 
+  def rabbits(%{turn: ticker, x: x, y: y, hw: hw}) do
+    left = x - hw
+    right = x + hw
+    top = y - hw
+    bottom = y + hw
+
+    Repo.all(from c in Creature, where: c.type == "Rabbit" and c.dies_at >= ^ticker and c.coord_x >= ^left and c.coord_x <= ^right and c.coord_y >= ^top and c.coord_y <= ^bottom, order_by: c.id)
+  end
+
   def count_rabbits(ticker) do
     Repo.one(from c in Creature, where: c.type == "Rabbit" and c.dies_at >= ^ticker, select: count("*"))
   end
@@ -146,9 +155,9 @@ defmodule DimensionOnline.Creature do
   end
 
   defp get_status(creature, message) do
-    type = get_field(creature, :type)
-    id = get_field(creature, :id)
-    name = "#{type} \##{id}"
+    # type = get_field(creature, :type)
+    # id = get_field(creature, :id)
+    # name = "#{type} \##{id}"
 
     if hungry?(creature) do
       "Feeling hungry and #{message}"

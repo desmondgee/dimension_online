@@ -14,7 +14,7 @@ defmodule DimensionOnline.TurnServer do
   def init(_) do
     DimensionOnline.Repo.delete_all(DimensionOnline.Creature)
 
-    for x <- (1..20) do
+    for _x <- (1..20) do
       i = Enum.random(-10..1)
       DimensionOnline.Creature.spawn_rabbit(i)
     end
@@ -33,6 +33,7 @@ defmodule DimensionOnline.TurnServer do
     process_ms = Time.diff(Time.utc_now, start_time, :millisecond)
 
     sleep_ms = @turn_ms - process_ms
+    sleep_ms = if sleep_ms < 1000, do: 1000, else: sleep_ms
     IO.puts "Next turn will be in #{sleep_ms} milliseconds."
     Process.send_after(self(), :process_turn, sleep_ms)
 

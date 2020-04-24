@@ -1,9 +1,9 @@
 <script> setTimeout(function(){ location.reload(); }, 2000); </script>
 <div class="jumbotron">
   <h2>The World</h2>
-  <p> current turn: <%= current_turn() %></h2>
-  <p> number of creatures: <%= creature_count() %></h2>
-  <p> number of casualties: <%= dead_creature_count() %></h2>
+  <p> current turn: <%= @turn %></h2>
+  <p> number of creatures: <%= @alive_count %></h2>
+  <p> number of casualties: <%= @dead_count %></h2>
 
   <table class="table table-striped">
     <thead>
@@ -18,12 +18,12 @@
 
     <tbody>
 
-<%= for creature <- creatures() do %>
+<%= for creature <- @creatures do %>
     <tr>
       <th class="text-center" scope="row"><%= creature.id %></th>
       <td><%= "(#{creature.coord_x}, #{creature.coord_y})" %></td>
       <td><%= creature.food %></td>
-      <td><%= age(creature) %></td>
+      <td><%= age(creature, @turn) %></td>
       <td><%= creature.last_message %></td>
     </tr>
 <% end %>

@@ -1,30 +1,11 @@
 defmodule DimensionOnlineWeb.WorldView do
   use DimensionOnlineWeb, :view
 
-  def current_turn do
-    %{turn: turn} = :sys.get_state(DimensionOnline.TurnServer)
-    turn
-  end
+  @pan_distance 20
 
-  def creatures do
-    # DimensionOnline.Repo.all(DimensionOnline.Creature)
-    DimensionOnline.Creature.all_rabbits(current_turn())
-  end
-
-  def sorted_creatures do
-    rabbits = creatures()
-    Enum.sort(rabbits, &(&1.coord_x < &2.coord_x || (&1.coord_x == &2.coord_x && &1.coord_y < &2.coord_y)))
-  end
-
-  def find_creature(creatures, x, y) do
-    Enum.find(creatures, &(&1.coord_x == x && &1.coord_y == y))
-  end
-
-  def print_creatures do
-    radius = 35
-    creatures = creatures()
-    grid = for y <- -radius..radius do
-      row = for x <- -radius..radius do
+  def print_creatures(%{creatures: creatures, x: x, y: y, hw: hw}) do
+    grid = for y <- (y - hw)..(y + hw) do
+      row = for x <- (x - hw)..(x + hw) do
         if find_creature(creatures, x, y) do
           "O"
         else
@@ -38,15 +19,43 @@ defmodule DimensionOnlineWeb.WorldView do
     Phoenix.HTML.raw(Enum.join(grid, "<br/>"))
   end
 
-  def creature_count do
-    DimensionOnline.Creature.count_rabbits(current_turn())
+  def find_creature(creatures, x, y) do
+    Enum.find(creatures, &(&1.coord_x == x && &1.coord_y == y))
   end
 
-  def dead_creature_count do
-    DimensionOnline.Creature.count_dead_rabbits(current_turn())
+  def age(creature, turn) do
+    turn - creature.birthed_at
   end
 
-  def age(creature) do
-    current_turn() - creature.birthed_at
+  def left_params(%{x: x, y: y}) do
+    %{
+      x: x - @pan_distance,
+      y: y
+    }
+  end
+
+  def right_params(%{x: x, y: y}) do
+    %{
+      x: x + @pan_distance,
+      y: y
+    }
+  end
+
+  def up_params(%{x: x, y: y}) do
+    %{
+      x: x,
+      y: y - @pan_distance
+    }
+  end
+
+  def down_params(%{x: x, y: y}) do
+    %{
+      x: x,
+      y: y + @pan_distance
+    }
+  end
+
+  def coords_text(%{x: x, y: y}) do
+    "(#{x}, #{y})"
   end
 end

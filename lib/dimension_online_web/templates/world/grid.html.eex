@@ -1,11 +1,34 @@
-<script> setTimeout(function(){ location.reload(); }, 2000); </script>
-<div class="jumbotron">
-  <h2>The World</h2>
-  <p> current turn: <%= current_turn() %></h2>
-  <p> number of creatures: <%= creature_count() %></h2>
-  <p> number of casualties: <%= dead_creature_count() %></h2>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-  <p> Grid: </p>
-  <p class="grid"> <%= print_creatures() %>
+    <title>Hello DimensionOnline!</title>
+    <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+  </head>
+  <body>
 
-</div>
+    <script> setTimeout(function(){ location.reload(); }, 2000); </script>
+    <div class="jumbotron">
+      <h2>The World <%= coords_text(assigns) %></h2>
+      <p><a href="<%= world_path(@conn, :grid, up_params(assigns)) %>">Up</a></p>
+      <p>
+        <a href="<%= world_path(@conn, :grid, left_params(assigns)) %>">Left</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="<%= world_path(@conn, :grid, right_params(assigns)) %>">Right</a>
+      </p>
+      <p><a href="<%= world_path(@conn, :grid, down_params(assigns)) %>">Down</a></p>
+
+      <p class="grid"> <%= print_creatures(assigns) %>
+
+      <p> current turn: <%= @turn %></h2>
+      <p> number of creatures: <%= @alive_count %></h2>
+      <p> number of casualties: <%= @dead_count %></h2>
+
+    </div>
+  </body>
+</html>
