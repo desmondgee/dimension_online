@@ -8,20 +8,20 @@
     <meta name="author" content="">
 
     <title>Hello DimensionOnline!</title>
-    <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>">
   </head>
   <body>
 
     <script> setTimeout(function(){ location.reload(); }, 2000); </script>
     <div class="jumbotron">
       <h2>The World <%= coords_text(assigns) %></h2>
-      <p><a href="<%= world_path(@conn, :grid, up_params(assigns)) %>">Up</a></p>
+      <p><a href="<%= Routes.world_path(@conn, :grid, up_params(assigns)) %>">Up</a></p>
       <p>
-        <a href="<%= world_path(@conn, :grid, left_params(assigns)) %>">Left</a>
+        <a href="<%= Routes.world_path(@conn, :grid, left_params(assigns)) %>">Left</a>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="<%= world_path(@conn, :grid, right_params(assigns)) %>">Right</a>
+        <a href="<%= Routes.world_path(@conn, :grid, right_params(assigns)) %>">Right</a>
       </p>
-      <p><a href="<%= world_path(@conn, :grid, down_params(assigns)) %>">Down</a></p>
+      <p><a href="<%= Routes.world_path(@conn, :grid, down_params(assigns)) %>">Down</a></p>
 
       <p class="grid"> <%= print_creatures(assigns) %>
 

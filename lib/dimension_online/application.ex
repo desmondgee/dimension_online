@@ -8,6 +8,8 @@ defmodule DimensionOnline.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
+      # Start the PubSub system
+      {Phoenix.PubSub, name: DimensionOnline.PubSub},
       # Start the Ecto repository
       supervisor(DimensionOnline.Repo, []),
       # Start the endpoint when the application starts

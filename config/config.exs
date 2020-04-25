@@ -13,14 +13,14 @@ config :dimension_online,
 config :dimension_online, DimensionOnlineWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "JNpLyoFxtYCnpaARbtZ+rfd3ZU0voVM+9zfV/TgeVvyoCZJFfvJZEfQrQQef+YGi",
-  render_errors: [view: DimensionOnlineWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: DimensionOnline.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+  render_errors: [view: DimensionOnlineWeb.ErrorView, accepts: ~w(html json)]
 
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:user_id]
+
+config :phoenix, :json_library, Jason
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

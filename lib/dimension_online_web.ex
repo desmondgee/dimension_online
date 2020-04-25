@@ -20,9 +20,11 @@ defmodule DimensionOnlineWeb do
   def controller do
     quote do
       use Phoenix.Controller, namespace: DimensionOnlineWeb
+
       import Plug.Conn
-      import DimensionOnlineWeb.Router.Helpers
       import DimensionOnlineWeb.Gettext
+
+      alias DimensionOnlineWeb.Router.Helpers, as: Routes
     end
   end
 
@@ -37,9 +39,10 @@ defmodule DimensionOnlineWeb do
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
 
-      import DimensionOnlineWeb.Router.Helpers
       import DimensionOnlineWeb.ErrorHelpers
       import DimensionOnlineWeb.Gettext
+
+      alias DimensionOnlineWeb.Router.Helpers, as: Routes
     end
   end
 
