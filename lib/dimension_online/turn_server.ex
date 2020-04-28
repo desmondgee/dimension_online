@@ -3,18 +3,16 @@ defmodule DimensionOnline.TurnServer do
 
   @turn_ms 2000
 
-
-  def start_link do
-    GenServer.start_link(__MODULE__, %{}, [name: __MODULE__])
+  def start_link(default) when is_list(default) do
+    GenServer.start_link(__MODULE__, default, name: __MODULE__)
   end
-
 
   ## Callbacks
 
   def init(_) do
     DimensionOnline.Repo.delete_all(DimensionOnline.Creature)
 
-    for _x <- (1..20) do
+    for _x <- (1..100) do
       i = Enum.random(-10..1)
       DimensionOnline.Creature.spawn_rabbit(i)
     end
