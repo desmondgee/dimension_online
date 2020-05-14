@@ -21,6 +21,7 @@ defmodule DimensionOnlineWeb.Router do
     get "/hello/:message", HelloController, :show
     get "/world", WorldController, :index
     get "/grid", WorldController, :grid
+    get "/terrain", TerrainController, :index
   end
 
   # Other scopes may use custom stacks.

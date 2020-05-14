@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Hello DimensionOnline!</title>
+    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>">
+  </head>
+  <body>
+
+    <h1>Terrain Overview</h1>
+    <ul>
+      <li>Flat Land: <%= @expected_tile_counts.land %> tiles (<%= @actual_tile_counts.land %> actual)</li>
+      <li>Water Tiles: <%= @expected_tile_counts.water %> tiles (<%= @actual_tile_counts.water %> actual)</li>
+    </ul>
+
+    <h1>Grid</h1>
+    <div class="grid"><%= @printed_tiles %></div>
+  </body>
+</html>
