@@ -2,6 +2,7 @@ defmodule DimensionOnlineWeb.TerrainController do
   use DimensionOnlineWeb, :controller
 
   alias DimensionOnlineWeb.Game.Map
+  alias DimensionOnlineWeb.Game.NoiseMap
   alias DimensionOnlineWeb.Util.Random
 
   def index(conn, _params) do
@@ -28,6 +29,15 @@ defmodule DimensionOnlineWeb.TerrainController do
     conn = put_layout conn, false
 
     render conn, "index.html", assigns
+  end
+
+  def simplex(conn, _params) do
+    assigns = %{
+      printed_tiles: NoiseMap.print(50)
+    }
+    conn = put_layout conn, false
+
+    render conn, "simplex.html", assigns
   end
 
   def generate_tiles(tile_counts, width, seed) do

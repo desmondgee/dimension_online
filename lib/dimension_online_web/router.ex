@@ -22,6 +22,7 @@ defmodule DimensionOnlineWeb.Router do
     get "/world", WorldController, :index
     get "/grid", WorldController, :grid
     get "/terrain", TerrainController, :index
+    get "/simplex", TerrainController, :simplex
   end
 
   # Other scopes may use custom stacks.

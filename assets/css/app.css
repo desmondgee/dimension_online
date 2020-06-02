@@ -4,4 +4,40 @@
     line-height: 10px;
     font-size: 21px;
     font-family: Courier;
+    width: 2000px;
+}
+
+.level-1 {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: blue;
+}
+
+.level-2 {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: green;
+}
+
+.level-3 {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: tan;
+}
+
+.level-4 {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: slategrey;
+}
+
+.level-5 {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: snow;
 }
