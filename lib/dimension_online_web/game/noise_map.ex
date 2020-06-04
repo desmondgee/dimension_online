@@ -2,13 +2,14 @@ defmodule DimensionOnlineWeb.Game.NoiseMap do
   defstruct [:grid, :width]
 
   alias DimensionOnlineWeb.Game.Simplex
+  alias DimensionOnlineWeb.Game.NoiseLayerSetting
 
   def print(width) do
     width = 200
 
     column_text = for y <- 0..(width - 1) do
       row = for x <- 0..(width - 1) do
-        height = computeHeight(x, y)
+        height = calculate_height(x, y)
         cond do
           height < 0.2 ->
             "<div class='level-1'></div>"
@@ -29,35 +30,47 @@ defmodule DimensionOnlineWeb.Game.NoiseMap do
     Phoenix.HTML.raw(Enum.join(column_text, "<br/>"))
   end
 
+  @land_layer_setting NoiseLayerSetting.default()
+  @dome_layer_setting %NoiseLayerSetting{NoiseLayerSetting.default() |
+    offset_x: 44358461.74457203,
+    offset_y: 91565620.6971831,
+    frequency: 0.032
+  }
+  @ridge_layer_setting %NoiseLayerSetting{NoiseLayerSetting.default() |
+    offset_x: 3113267.54804393,
+    offset_y: 5965100.813402789,
+    frequency: 0.032
+  }
 
-  @offset_x 41.51891
-  @offset_y 14.15601
+  # TODO: Make the percentages of these vary along the surface to make exploring interesting.
+  def calculate_height(x, y) do
+    land_layer_height = calculate_layer_height(x, y, @land_layer_setting)
+    dome_layer_height = calculate_layer_height(x, y, @dome_layer_setting)
+    ridge_layer_height = calculate_layer_height(x, y, @ridge_layer_setting)
 
-  @base_roughness 0.2
-
-  @roughness 0.8
-  @processing_layers 4
-
-  @persistence 2
-
-  def computeHeight(x, y) do
-    computeHeight(x, y, 0, @processing_layers, @base_roughness, 1)
+    land_layer_height / 3 + land_layer_height * dome_layer_height / 3 + ridge_layer_height / 3
   end
 
-  def computeHeight(_, _, height, 0, _, _), do: height
+  def calculate_layer_height(x, y, setting) do
+    noise = Simplex.noise(x * setting.frequency + setting.offset_x, y * setting.frequency + setting.offset_y)
 
-  def computeHeight(x, y, height, layers, frequency, amplitude) do
-    noise = Simplex.noise(x * frequency + @offset_x, y * frequency + @offset_y)
-    added_height = (noise + 1) * 0.5
+    layer_height = case setting.algorithm do
+      :normal ->
+        (noise + 1) * 0.5
+      :ridge ->
+        :math.pow( 1 - abs(noise), 2)
+    end
 
-    residual_height_ratio = 1 / (amplitude + 1)
-    added_height_ratio = 1 - residual_height_ratio
-    new_height = height * residual_height_ratio + added_height * added_height_ratio
+    new_setting = %NoiseLayerSetting{setting |
+      frequency: setting.frequency * setting.roughness,
+      ratio: setting.ratio * setting.persistence,
+      roughening_layers: setting.roughening_layers - 1
+    }
 
-    computeHeight(x, y, new_height, layers - 1, frequency * @roughness, amplitude * @persistence)
+    if new_setting.roughening_layers == 0 do
+      layer_height
+    else
+      layer_height * (1 - new_setting.ratio) + calculate_layer_height(x, y, new_setting) * new_setting.ratio
+    end
   end
-
-  # first round: max height is 1 * amplitude
-  # second round: max height is (1 * amplitude) + (1 * amplitude * persistence)
-  # third round: max height is (1 * amplitude) + (1 * amplitude * persistence) + (1 * amplitude * persistence * persistence)
 end
