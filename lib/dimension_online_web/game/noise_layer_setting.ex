@@ -35,7 +35,7 @@ defmodule DimensionOnlineWeb.Game.NoiseLayerSetting do
     %__MODULE__{
       offset_x: 20944855.618709624,
       offset_y: 21497304.823532137,
-      frequency: 0.2,
+      frequency: 0.08,
       ratio: 0.5,
       roughness: 1.2,
       roughening_layers: 5,
