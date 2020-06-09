@@ -4,11 +4,15 @@ defmodule DimensionOnlineWeb.Game.NoiseMap do
   alias DimensionOnlineWeb.Game.Simplex
   alias DimensionOnlineWeb.Game.NoiseLayerSetting
 
-  def print(width) do
-    width = 200
+  def print(center_x, center_y, tiles, zoom) do
+    tile_size = 1 / zoom
+    min_x = center_x - (tiles * 0.5) * tile_size
+    min_y = center_y - (tiles * 0.5) * tile_size
 
-    column_text = for y <- 0..(width - 1) do
-      row = for x <- 0..(width - 1) do
+    column_text = for grid_y <- 0..(tiles-1) do
+      y = min_y + grid_y * tile_size
+      row = for grid_x <- 0..(tiles-1) do
+        x = min_x + grid_x * tile_size
         height = calculate_height(x, y)
         balanced_world(height)
         # mountain_world(height)
@@ -94,19 +98,35 @@ defmodule DimensionOnlineWeb.Game.NoiseMap do
     frequency: 0.0031,
     algorithm: :ridge
   }
+  @river_layer_setting %NoiseLayerSetting{NoiseLayerSetting.default() |
+    offset_x: 83469278.67932535,
+    offset_y: 47012901.695511244,
+    frequency: 0.02,
+    algorithm: :river
+  }
 
   # TODO: Make the percentages of these vary along the surface to make exploring interesting.
   def calculate_height(x, y) do
+    river_layer_height = calculate_layer_height(x, y, @river_layer_setting)
     land_layer_height = calculate_layer_height(x, y, @land_layer_setting)
-    dome_layer_height = calculate_layer_height(x, y, @dome_layer_setting)
+    dome_layer_height = calculate_layer_height(x, y, @dome_layer_setting) * land_layer_height
     ridge_layer_height = calculate_layer_height(x, y, @ridge_layer_setting)
 
-    apply_weights([
-      {land_layer_height, 1},
-      {land_layer_height * dome_layer_height, 1.5},
-      {ridge_layer_height, 3.5}
-    ])
-
+    if river_layer_height < 0.24 do
+      # apply_weights([
+      #   {land_layer_height, 1},
+      #   {dome_layer_height, 1.5},
+      #   {ridge_layer_height, 3.5},
+      #   {river_layer_height, 12}
+      #   ])
+      0
+    else
+      apply_weights([
+        {land_layer_height, 1},
+        {dome_layer_height, 1.5},
+        {ridge_layer_height, 3.5}
+        ])
+    end
   end
 
   defp apply_weights(list) do
@@ -115,13 +135,17 @@ defmodule DimensionOnlineWeb.Game.NoiseMap do
   end
 
   defp calculate_layer_height(x, y, setting) do
-    noise = Simplex.noise(x * setting.frequency + setting.offset_x, y * setting.frequency + setting.offset_y)
+    noise_x = x * setting.frequency + setting.offset_x
+    noise_y = y * setting.frequency + setting.offset_y
+    noise = Simplex.noise(noise_x, noise_y)
 
     layer_height = case setting.algorithm do
       :normal ->
         (noise + 1) * 0.5
       :ridge ->
         :math.pow( 1 - abs(noise), 2)
+      :river ->
+        1 - :math.pow( 1 - abs(noise), 3)
     end
 
     new_setting = %NoiseLayerSetting{setting |

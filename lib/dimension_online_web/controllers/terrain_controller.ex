@@ -1,7 +1,7 @@
 defmodule DimensionOnlineWeb.TerrainController do
   use DimensionOnlineWeb, :controller
 
-  alias DimensionOnlineWeb.Game.Map
+  alias DimensionOnlineWeb.Game.TileMap
   alias DimensionOnlineWeb.Game.NoiseMap
   alias DimensionOnlineWeb.Util.Random
 
@@ -23,7 +23,7 @@ defmodule DimensionOnlineWeb.TerrainController do
         total: tile_counts.total
       },
       map: map,
-      printed_tiles: Map.print(map)
+      printed_tiles: TileMap.print(map)
     }
 
     conn = put_layout conn, false
@@ -31,17 +31,45 @@ defmodule DimensionOnlineWeb.TerrainController do
     render conn, "index.html", assigns
   end
 
-  def simplex(conn, _params) do
+  @tiles 100
+
+  def simplex(conn, params) do
+    zoom = params
+    |> Map.get("zoom", "1.0")
+    |> Float.parse()
+    |> elem(0)
+
+    [coord_x, coord_y] = Map.get(params, "pos", "250.0,250.0") |> String.split(",")
+    coord_x = Float.parse(coord_x) |> elem(0)
+    coord_y = Float.parse(coord_y) |> elem(0)
+
+    pan_amount = @tiles * 0.5 / zoom
+
     assigns = %{
-      printed_tiles: NoiseMap.print(50)
+      printed_tiles: NoiseMap.print(coord_x, coord_y, @tiles, zoom),
+      zoom_in: new_path(conn, coord_x, coord_y, zoom * 1.5),
+      zoom_out: new_path(conn, coord_x, coord_y, zoom / 1.5),
+      pan_left: new_path(conn, coord_x - pan_amount, coord_y, zoom),
+      pan_right: new_path(conn, coord_x + pan_amount, coord_y, zoom),
+      pan_up: new_path(conn, coord_x, coord_y - pan_amount, zoom),
+      pan_down: new_path(conn, coord_x, coord_y + pan_amount, zoom)
     }
     conn = put_layout conn, false
 
     render conn, "simplex.html", assigns
   end
 
+  defp new_path(conn, x, y, zoom) do
+    params = %{
+      pos: "#{x},#{y}",
+      zoom: "#{zoom}"
+    }
+
+    Routes.terrain_path(conn, :simplex, params)
+  end
+
   def generate_tiles(tile_counts, width, seed) do
-    {map, remaining_length, seed} = Map.init(width) |> generate_river(tile_counts.water, seed)
+    {map, remaining_length, seed} = TileMap.init(width) |> generate_river(tile_counts.water, seed)
 
 
   end
@@ -50,7 +78,7 @@ defmodule DimensionOnlineWeb.TerrainController do
     tries = tries - 1
     {start_x, seed} = Random.sample(0..(map.width-1), seed)
     {start_y, seed} = Random.sample(0..(map.width-1), seed)
-    updated_map = Map.set_tile(map, start_x, start_y, :water)
+    updated_map = TileMap.set_tile(map, start_x, start_y, :water)
 
     {map, remaining_length, seed} = do_generate_river(updated_map, {start_x, start_y}, length - 1, seed)
 
@@ -63,13 +91,13 @@ defmodule DimensionOnlineWeb.TerrainController do
 
   def do_generate_river(map, _, 0, seed), do: {map, 0, seed}
   def do_generate_river(map, {prev_x, prev_y}, remaining_length, seed) do
-    possible_tiles = Map.find_matching_neighbors(map, {prev_x, prev_y}, :land)
+    possible_tiles = TileMap.find_matching_neighbors(map, {prev_x, prev_y}, :land)
 
     {random_tile, seed} = Random.sample(possible_tiles, seed)
 
     case random_tile do
       {tile_x, tile_y, _} ->
-        updated_map = Map.set_tile(map, tile_x, tile_y, :water)
+        updated_map = TileMap.set_tile(map, tile_x, tile_y, :water)
         do_generate_river(updated_map, {tile_x, tile_y,}, remaining_length - 1, seed)
       nil -> {map, remaining_length, seed}
     end

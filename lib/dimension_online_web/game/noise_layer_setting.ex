@@ -28,7 +28,7 @@ defmodule DimensionOnlineWeb.Game.NoiseLayerSetting do
     roughness: float(),
     roughening_layers: 1..10,
     persistence: float(),
-    algorithm: :normal | :ridge
+    algorithm: :normal | :ridge | :river
   }
 
   def default do

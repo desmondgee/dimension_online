@@ -12,6 +12,17 @@
   </head>
   <body>
     <h1>Grid</h1>
+    <a href="<%= @zoom_in %>">Zoom In</a>
+    |
+    <a href="<%= @zoom_out %>">Zoom Out</a>
+    |
+    <a href="<%= @pan_left %>">Pan Left</a>
+    |
+    <a href="<%= @pan_right %>">Pan Right</a>
+    |
+    <a href="<%= @pan_up %>">Pan Up</a>
+    |
+    <a href="<%= @pan_down %>">Pan Down</a>
     <div class="grid"><%= @printed_tiles %></div>
   </body>
 </html>

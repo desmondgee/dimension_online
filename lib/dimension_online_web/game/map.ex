@@ -1,4 +1,4 @@
-defmodule DimensionOnlineWeb.Game.Map do
+defmodule DimensionOnlineWeb.Game.TileMap do
   defstruct [:grid, :width]
 
   def init(width, default_tile \\ :land) do
